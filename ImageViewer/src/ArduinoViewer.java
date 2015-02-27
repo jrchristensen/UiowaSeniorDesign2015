@@ -1,8 +1,10 @@
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javafx.application.Application;
@@ -13,6 +15,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -28,6 +31,7 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.PopupWindow;
 import javafx.stage.Stage;
 
 /**
@@ -176,6 +180,7 @@ public class ArduinoViewer extends Application {
 			}
 
 		});
+
 		MenuItem exit = new MenuItem("Exit");
 		exit.setOnAction(new EventHandler<ActionEvent>() {
 
@@ -188,6 +193,69 @@ public class ArduinoViewer extends Application {
 		});
 		file.getItems().addAll(ard, dir, exit);
 		Menu edit = new Menu("Edit");
+		MenuItem cameraSettings = new MenuItem("Camera Setting");
+		cameraSettings.setOnAction(new EventHandler <ActionEvent>() {
+
+			@Override
+			public void handle(ActionEvent arg0) {
+				
+				List<String> imageOptions = new ArrayList<>();
+				imageOptions.add("1200 X 1600");
+				imageOptions.add("640 X 480");
+				
+				ChoiceDialog<String> imageSize = new ChoiceDialog<>(imageOptions.get(0), imageOptions);
+				imageSize.setTitle("Select Image Size");
+				imageSize.setHeaderText("Please Select and Image Size");
+				imageSize.setContentText("Image Sizes");
+				imageSize.setGraphic(new ImageView(this.getClass().getResource("camera1.png").toString()));
+				
+				Optional<String> result = imageSize.showAndWait();
+				
+				result.ifPresent(size -> 
+				{
+					System.out.println(size);
+					int sizeIndex = imageOptions.indexOf(size); 
+					System.out.println(sizeIndex);
+				});
+				
+				
+			}
+			
+		});
+		MenuItem delayTime = new MenuItem("Capure Rate");
+			delayTime.setOnAction(new EventHandler <ActionEvent>() {
+
+				@Override
+				public void handle(ActionEvent arg0) {
+					List<String> times = new ArrayList<>();
+					for (int i =1; i<=10; i++){
+						times.add(Integer.toString(i) + " Minutes" );
+					}
+					
+					ChoiceDialog<String> time = new ChoiceDialog<>(times.get(0),times);
+					time.setTitle("Select the delay time");
+					time.setHeaderText("Please Select the delay time");
+					time.setContentText("Delay Times");
+					Image image = new Image("camera1.png");
+					ImageView camera = new ImageView();
+					camera.setImage(image);
+					time.setGraphic(camera);
+					
+					Optional<String> result = time.showAndWait();
+					
+					result.ifPresent(delay -> 
+					{
+						
+					System.out.println(delay);
+					int delayInt = Integer.parseInt(delay.substring(0,1));
+					System.out.println(delayInt);
+					});
+					
+					
+				}
+			
+		});
+		edit.getItems().addAll(cameraSettings, delayTime);
 		Menu view = new Menu("View");
 
 		menuBar.getMenus().addAll(file, edit, view);
