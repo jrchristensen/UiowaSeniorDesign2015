@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -28,9 +30,10 @@ public class ArdSerial {
 	private String ardPort;
 
 	/**
-	 * private string saveLocation - the location that the downloaded files will be saved
+	 * private string saveLocation - the location that the downloaded files will
+	 * be saved
 	 */
-	private String saveLocation ="";
+	private String saveLocation = "";
 	/**
 	 * private SerialPort serPort - The serial port connection with the Arduino
 	 */
@@ -160,7 +163,7 @@ public class ArdSerial {
 				// System.out.println(sb.toString());
 				String file = sb.toString();
 				for (String name : file.split("\n")) {
-					name =name.replace("\n", "").replace("\r", "");
+					name = name.replace("\n", "").replace("\r", "");
 					fileNames.add(name);
 					// System.out.println(name);
 				}
@@ -208,12 +211,11 @@ public class ArdSerial {
 				serPort.writeString(fileNames.get(i).toLowerCase() + "\n");
 				Thread.sleep(200);
 
-				File file = new File(saveLocation.concat(fileNames.get(i).toLowerCase()));
+				File file = new File(saveLocation.concat(fileNames.get(i)
+						.toLowerCase()));
 				FileOutputStream fos = new FileOutputStream(file);
 				boolean fileComplete = false;
 
-				// while(!fileComplete &&
-				// serPort.getInputBufferBytesCount()!=0){
 				while (serPort.getInputBufferBytesCount() != 0) {
 					byte[] in = serPort.readBytes();
 					String s = new String(in);
@@ -230,21 +232,6 @@ public class ArdSerial {
 					}
 				}
 				fos.close();
-				/*
-				 * FileWriter f = new
-				 * FileWriter(fileNames.get(i).toLowerCase());
-				 * 
-				 * 
-				 * System.out.println(serPort.getInputBufferBytesCount()+" "+serPort
-				 * .getOutputBufferBytesCount());
-				 * while(serPort.getInputBufferBytesCount() > 0){
-				 * 
-				 * String input = serPort.readString();
-				 * System.out.println(input); if (input.startsWith("ERROR")){
-				 * System.out.println(input); f.close(); return; } else if
-				 * (!input.endsWith("##")){ f.write(input); Thread.sleep(1000);
-				 * } else{ input.replace("##", ""); f.close(); break; } }
-				 */
 
 			}
 			serPort.writeString("#");
@@ -253,28 +240,77 @@ public class ArdSerial {
 			e.printStackTrace();
 		}
 	}
-	public ArrayList<String> getImageFileNames(){
+
+	public ArrayList<String> getImageFileNames() {
 		ArrayList<String> images = new ArrayList<String>();
-		
-		for(String name:fileNames){
-			name=name.toLowerCase();
-			if(name.endsWith(".jpg")||name.endsWith(".jpeg")||name.endsWith(".png")||name.endsWith(".gif")||name.endsWith(".bmp")){
+
+		for (String name : fileNames) {
+			name = name.toLowerCase();
+			if (name.endsWith(".jpg") || name.endsWith(".jpeg")
+					|| name.endsWith(".png") || name.endsWith(".gif")
+					|| name.endsWith(".bmp")) {
 				images.add(name);
 			}
 		}
-		
-		
+
 		return images;
 	}
+
 	/**
-	 * public void setSaveLocation
+	 * public method setSaveLocation - sets the save location for the images to
+	 * be saved to the computer
+	 * 
 	 * @param location
 	 */
-	public void setSaveLocation(String location){
-		saveLocation=location;
-		
+	public void setSaveLocation(String location) {
+		saveLocation = location;
+
 	}
-	public String getSaveLocation(){
+
+	/**
+	 * public method getSaveLocation - gets the save location of the imgaes to
+	 * be saved to the computer
+	 * 
+	 * @return The string path of the save location
+	 */
+	public String getSaveLocation() {
 		return saveLocation;
 	}
+
+	/**
+	 * public method sendImageSize - sends the image size index to set the
+	 * camera settings - the default setting is 1600 X 1200
+	 * 
+	 * 0 - 1200 X 1600 1 - 640 X 480
+	 * 
+	 * @param index
+	 */
+	public void sendImageSize(int index) {
+
+		try {
+			serPort.writeString("setting\n");
+			serPort.writeString(Integer.toString(index));
+		} catch (SerialPortException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * public method sendDelayTime - sends the delay time to the Arduino to set
+	 * the delay time between the image captures
+	 * 
+	 * @param delayTime - the delay time between captures
+	 */
+	public void sendDelayTime(int delayTime) {
+
+		try {
+			serPort.writeString("delay\n");
+			serPort.writeString(Integer.toString(delayTime));
+		} catch (SerialPortException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 }

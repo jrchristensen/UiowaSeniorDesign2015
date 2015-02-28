@@ -15,11 +15,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ChoiceDialog;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -97,7 +99,9 @@ public class ArduinoViewer extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) {
-		currentDirectory = System.getProperty("user.dir").concat("\\");
+		currentDirectory = System.getProperty("user.home").concat("\\Documents\\Senior Design\\ImageSaveLocation\\");
+		System.out.println("The Current Save Directoy is: " + currentDirectory);
+		
 		primaryStage.setTitle("ArduinoViewer");
 		Group root = new Group();
 		Scene scene = new Scene(root, 551, 400, Color.BLACK);
@@ -154,7 +158,7 @@ public class ArduinoViewer extends Application {
 						System.out.println("The Array is Empty");
 
 				} else
-					System.out.println("DownLoad Failed");
+					displayAlert("The Serial Port is not Connected", "Check to see if the Ardunio is connected Via the USB Port");
 
 			}
 
@@ -166,8 +170,7 @@ public class ArduinoViewer extends Application {
 			public void handle(ActionEvent arg0) {
 				final DirectoryChooser directoryChooser = new DirectoryChooser();
 				directoryChooser.setTitle("Choose a working Directory");
-				directoryChooser.setInitialDirectory(new File(System
-						.getProperty("user.home")));
+				directoryChooser.setInitialDirectory(new File(currentDirectory));
 				final File selectedDirectory = directoryChooser
 						.showDialog(primaryStage);
 
@@ -207,7 +210,7 @@ public class ArduinoViewer extends Application {
 				imageSize.setTitle("Select Image Size");
 				imageSize.setHeaderText("Please Select and Image Size");
 				imageSize.setContentText("Image Sizes");
-				imageSize.setGraphic(new ImageView(this.getClass().getResource("camera1.png").toString()));
+				imageSize.setGraphic(new ImageView(this.getClass().getResource("camera.png").toString()));
 				
 				Optional<String> result = imageSize.showAndWait();
 				
@@ -216,6 +219,14 @@ public class ArduinoViewer extends Application {
 					System.out.println(size);
 					int sizeIndex = imageOptions.indexOf(size); 
 					System.out.println(sizeIndex);
+					
+					ArdSerial Arduino = new ArdSerial();
+					
+					if (Arduino.connect()){
+						Arduino.sendImageSize(sizeIndex);
+						Arduino.disconnect();
+					}
+					else displayAlert("There is no Arduino Connection", "Make sure The Arduino Is connected VIA the USB Port");
 				});
 				
 				
@@ -249,6 +260,13 @@ public class ArduinoViewer extends Application {
 					System.out.println(delay);
 					int delayInt = Integer.parseInt(delay.substring(0,1));
 					System.out.println(delayInt);
+ArdSerial Arduino = new ArdSerial();
+					
+					if (Arduino.connect()){
+						Arduino.sendDelayTime(delayInt);
+						Arduino.disconnect();
+					}
+					else displayAlert("There is no Arduino Connection", "Make sure The Arduino Is connected VIA the USB Port");
 					});
 					
 					
@@ -265,6 +283,7 @@ public class ArduinoViewer extends Application {
 
 		primaryStage.show();
 	}
+	
 
 	/**
 	 * Private method createImageView - A factory function returning an
@@ -480,7 +499,7 @@ public class ArduinoViewer extends Application {
 
 	}
 
-	/*
+	/**
 	 * Returns a worker task (Task) which will off-load the image on a separate
 	 * thread when finished; the current image will be displayed on the JavaFX
 	 * application thread.
@@ -527,6 +546,26 @@ public class ArduinoViewer extends Application {
 					loadImage.progressProperty());
 			new Thread(loadImage).start();
 		}
+	}
+	/**
+	 * private Method displayAlert - creates and Alert Dialog box to alert the
+	 * user of the Error
+	 * 
+	 * @param alertHeaderText
+	 *            - The header text that will be displayed in the dialog box
+	 * @param alertContentText
+	 *            - The actual error message that is displayed; may contain a
+	 *            message that will help the user troubleshoot the error that
+	 *            has occurred
+	 */
+	public static void displayAlert(String alertHeaderText, String alertContentText) {
+
+		Alert alert = new Alert(AlertType.WARNING);
+		alert.setTitle("Warning An Error Has Occured");
+		alert.setHeaderText(alertHeaderText);
+		alert.setContentText(alertContentText);
+		alert.showAndWait();
+
 	}
 
 	/**
