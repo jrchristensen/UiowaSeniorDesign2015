@@ -321,6 +321,10 @@ public class ArdSerial {
 		}
 
 	}
+	/**
+	 * public method active - will set the camera active and inactive
+	 * 						- will be used when down loading images from the camera 
+	 */
 	public void active(){
 		try{
 			Thread.sleep(1000);
