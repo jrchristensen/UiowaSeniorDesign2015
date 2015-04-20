@@ -135,9 +135,11 @@ public class ArduinoViewer extends Application {
 				Arduino.setSaveLocation(currentDirectory);
 
 				if (Arduino.connect()) {
+					Arduino.active();
 					Arduino.getFileNames();
 					Arduino.printFileNames();
 					Arduino.downloadFiles();
+					Arduino.active();
 					Arduino.disconnect();
 
 					ArrayList<String> names = Arduino.getImageFileNames();
@@ -203,8 +205,16 @@ public class ArduinoViewer extends Application {
 			public void handle(ActionEvent arg0) {
 				
 				List<String> imageOptions = new ArrayList<>();
-				imageOptions.add("1200 X 1600");
+				imageOptions.add("160 X 120");
+				imageOptions.add("176 X 144");
+				imageOptions.add("320 X 240");
+				imageOptions.add("352 X 288");
 				imageOptions.add("640 X 480");
+				imageOptions.add("800 X 600");
+				imageOptions.add("1024 X 786");
+				imageOptions.add("1280 X 1024");
+				imageOptions.add("1200 X 1600");
+				
 				
 				ChoiceDialog<String> imageSize = new ChoiceDialog<>(imageOptions.get(0), imageOptions);
 				imageSize.setTitle("Select Image Size");
@@ -274,9 +284,8 @@ ArdSerial Arduino = new ArdSerial();
 			
 		});
 		edit.getItems().addAll(cameraSettings, delayTime);
-		Menu view = new Menu("View");
 
-		menuBar.getMenus().addAll(file, edit, view);
+		menuBar.getMenus().addAll(file, edit);
 
 		root.getChildren().addAll(currentImageView, buttonGroup,
 				progressIndicator, menuBar);

@@ -1,15 +1,10 @@
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -164,7 +159,9 @@ public class ArdSerial {
 				String file = sb.toString();
 				for (String name : file.split("\n")) {
 					name = name.replace("\n", "").replace("\r", "");
-					fileNames.add(name);
+					if (!name.contains("CONFIG")){
+							fileNames.add(name);
+					}
 					// System.out.println(name);
 				}
 				/*
@@ -281,16 +278,26 @@ public class ArdSerial {
 	 * public method sendImageSize - sends the image size index to set the
 	 * camera settings - the default setting is 1600 X 1200
 	 * 
-	 * 0 - 1200 X 1600 1 - 640 X 480
+	 * 0 - 160 X 120
+	 * 1 - 176 X 144 
+	 * 2 - 320 X 240
+	 * 3 - 352 X 288
+	 * 4 - 640 X 480
+	 * 5 - 800 X 600
+	 * 6 - 1024 X 786
+	 * 7 - 1280 X 1024
+	 * 8 - 1200 X 1600
 	 * 
 	 * @param index
 	 */
 	public void sendImageSize(int index) {
 
 		try {
+			Thread.sleep(2000);
 			serPort.writeString("setting\n");
 			serPort.writeString(Integer.toString(index));
-		} catch (SerialPortException e) {
+			Thread.sleep(2000);
+		} catch (SerialPortException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
@@ -305,12 +312,23 @@ public class ArdSerial {
 	public void sendDelayTime(int delayTime) {
 
 		try {
+			Thread.sleep(2000);
 			serPort.writeString("delay\n");
 			serPort.writeString(Integer.toString(delayTime));
-		} catch (SerialPortException e) {
+			Thread.sleep(2000);
+		} catch (SerialPortException | InterruptedException e) {
 			e.printStackTrace();
 		}
 
+	}
+	public void active(){
+		try{
+			Thread.sleep(1000);
+			serPort.writeString("active\n");
+			Thread.sleep(2000);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 }
